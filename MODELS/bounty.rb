@@ -42,14 +42,22 @@ class Bounty
     db.close
 
     # return found.map {|record| Bounty.new( record )}
+    # ^
+    # This doesn't work, as our hash uses symbols as keys, while
+    # what's returned from the SELECT SQL call uses string keys.
 
-    return Bounty.new({
-      id: found['id'].to_i,
-      name: found['name'],
-      bounty_value: found['bounty_value'].to_i,
-      danger_level: found['danger_level'],
-      favourite_weapon: found['favourite_weapon']
-      })
+    symbolized = {}
+    found.each { |key,value| symbolized.store(key.to_sym, value) }
+    return Bounty.new( symbolized )
+
+    # Old code...
+    # return Bounty.new({
+    #   id: found['id'],
+    #   name: found['name'],
+    #   bounty_value: found['bounty_value'],
+    #   danger_level: found['danger_level'],
+    #   favourite_weapon: found['favourite_weapon']
+    #   })
   end
 
 end
