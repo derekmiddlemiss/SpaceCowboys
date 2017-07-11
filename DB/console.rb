@@ -8,6 +8,4 @@ bounty1 = Bounty.new({
 })
 
 bounty1.save()
-bounty1.danger_level = "ermagerdyerderd"
-
-bounty1.update()
+p bounty1.find(3)

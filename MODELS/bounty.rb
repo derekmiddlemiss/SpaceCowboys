@@ -7,7 +7,7 @@ class Bounty
 
   def initialize( options )
     @name = options[:name]
-    @bounty_value = options[:bounty_value]
+    @bounty_value = options[:bounty_value].to_i
     @danger_level = options[:danger_level]
     @favourite_weapon = options[:favourite_weapon]
     @id = options[:id].to_i if options[:id]
@@ -33,6 +33,23 @@ class Bounty
     sql = "DELETE FROM bounties WHERE id = #{@id}"
     db.exec(sql)
     db.close
+  end
+
+  def find(search_id)
+    db = PG.connect( {dbname: 'space_cowboys', host: 'localhost'} )
+    sql = "SELECT * FROM bounties WHERE id = #{search_id}"
+    found = db.exec(sql)[0]
+    db.close
+
+    # return found.map {|record| Bounty.new( record )}
+
+    return Bounty.new({
+      id: found['id'].to_i,
+      name: found['name'],
+      bounty_value: found['bounty_value'].to_i,
+      danger_level: found['danger_level'],
+      favourite_weapon: found['favourite_weapon']
+      })
   end
 
 end
