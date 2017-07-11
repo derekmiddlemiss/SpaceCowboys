@@ -35,7 +35,7 @@ class Bounty
     db.close
   end
 
-  def find(search_id)
+  def self.find(search_id)
     db = PG.connect( {dbname: 'space_cowboys', host: 'localhost'} )
     sql = "SELECT * FROM bounties WHERE id = #{search_id}"
     found = db.exec(sql)[0]
@@ -46,9 +46,7 @@ class Bounty
     # This doesn't work, as our hash uses symbols as keys, while
     # what's returned from the SELECT SQL call uses string keys.
 
-    symbolized = {}
-    found.each { |key,value| symbolized.store(key.to_sym, value) }
-    return Bounty.new( symbolized )
+    return Bounty.new( symbolize(found) )
 
     # Old code...
     # return Bounty.new({
@@ -58,6 +56,19 @@ class Bounty
     #   danger_level: found['danger_level'],
     #   favourite_weapon: found['favourite_weapon']
     #   })
+  end
+
+  def self.symbolize( input_hash )
+    symbolized = {}
+    input_hash.each { |key,value| symbolized.store(key.to_sym, value) }
+    return symbolized
+  end
+
+  def self.most_wanted( bounty_threshold )
+    db = PG.connect( {dbname: 'space_cowboys', host: 'localhost'} )
+    sql = "SELECT * FROM bounties WHERE bounty_value > #{bounty_threshold}"
+    found = db.exec(sql)
+    found = found.map { |villain| Bounty.new( symbolize( villain ) ) }
   end
 
 end
